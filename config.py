@@ -1,0 +1,1 @@
+TOKEN = 'VOSTRO TOKEN'
