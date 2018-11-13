@@ -93,7 +93,7 @@ def button_press(msg):
         bot.editMessageReplyMarkup((chatId, message_id), keyboard)
 
 
-    if user.status == "getting_type":
+    elif user.status == "getting_type":
         if button == "typeDOM":
             user.tipo_raccolta = "DOM"
 
