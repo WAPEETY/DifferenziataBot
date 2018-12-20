@@ -43,6 +43,13 @@ def reply(msg):
 
         elif text == "/configura":
             bot.sendMessage(chatId, "Non c'è bisogno di configurarmi, hai già fatto tutto!")
+        elif text == "/cancella":
+            sent = bot.sendMessage(chatId, "Vuoi cancellare i tuoi dati per sempre? (questa azione é irreversibile)")
+            keyboard = InlineKeyboardMarkup(inline_keyboard=[[
+                InlineKeyboardButton(text="Si", callback_data="del_yes#{0}".format(sent['message_id'])),
+                InlineKeyboardButton(text="No", callback_data="del_no#{0}".format(sent['message_id']))
+            ]])
+            bot.editMessageReplyMarkup((chatId, sent['message_id']), keyboard)
 
 
     # Se l'utente deve ancora inserire i dati
@@ -105,7 +112,16 @@ def button_press(msg):
         bot.editMessageReplyMarkup((chatId, message_id), None)
         bot.editMessageText((chatId, message_id), "Fatto!")
 
-    
+    elif user.status == "normal":
+        if button == "del_yes":
+            user.area_raccolta = ""
+            user.tipo_raccolta = ""
+            user.status = "new"
+            bot.editMessageReplyMarkup((chatId, message_id), None)
+            bot.editMessageText((chatId, message_id), "Fatto, per configurare il tutto usa il comando /configura")
+        elif button == "del_no":
+            bot.editMessageReplyMarkup((chatId, message_id), None)
+            bot.editMessageText((chatId, message_id), "OK, sono contento che userai ancora il bot!")
 
 bot.message_loop({'chat': reply, 'callback_query': button_press})
 
