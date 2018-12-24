@@ -1,6 +1,8 @@
 import telepot
+import sqlite3
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 from time import sleep
+from time import localtime
 from pony.orm import db_session, select, exists
 from modules.database import User, db
 
@@ -34,6 +36,19 @@ def reply(msg):
 
     user = User.get(chatId=chatId)
 
+    #donazioni
+    if text == "/dona":
+        bot.sendMessage(chatId, "Ecco qui il mio link PayPal, Grazie mille! \n"
+                                "https://www.paypal.me/wapeetyofficial")
+
+    #aiuto
+
+    if text == "/aiuto":
+        bot.sendMessage(chatId, "Ecco qui i vari comandi disponibili \n"
+                                "/configura - Se non hai ancora configurato il bot \n"
+                                "/cancella - Se hai sbagliato a configurare il bot o vuoi cancellare la tua configurazione \n"
+                                "/dona - Se dovessi sentirti tanto buono da donare qualcosina (offerta libera) \n"
+                                "/aiuto - Per mostrare questo messaggio")
 
     # Se l'utente ha configurato tutto
     if user.status == "normal":
@@ -125,6 +140,100 @@ def button_press(msg):
 
 bot.message_loop({'chat': reply, 'callback_query': button_press})
 
+
+@db_session
+def trash_notify():
+    '''This function sends the shitty notification to each
+    "normal" fucking user in the database at 8:00 PM.
+
+    I need the fucking types too, but I don't know it, so I'll create
+    an empty dictionary and make the owner complete it.
+    '''
+    
+    tm = localtime()            # imposta la variabile tm all'orario locale
+    type_trash = {
+        'URB': { #io
+            'typeDOM': {
+                0: 'Indifferenziata',                               # Monday
+                1: 'Plastica e metalli',                            # Tuesday
+                2: 'Organico, Vetro',                               # Wednesday
+                3: 'Carta e cartone',                               # Thursday
+                4: 'Organico',                                      # Friday
+                5: 'Nulla',                                         # Sathurday
+                6: 'Organico',                                      # Sunday
+            },
+
+            'typeNOTDOM': { #guarino
+                0: 'Indifferenziata e vetro',                       # Monday
+                1: 'Plastica e metalli, Carta e cartone',           # Tuesday
+                2: 'Organico, Vetro',                               # Wednesday
+                3: 'Carta e cartone',                               # Thursday
+                4: 'Organico, Plastica e metalli',                  # Friday
+                5: 'Nulla',                                         # Sathurday
+                6: 'Organico, Plastica e metalli, Carta e cartone', # Sunday
+            }
+        },
+
+        'IND': {
+            'typeDOM': { #mi fra
+                0: 'Organico, Plastica e Metalli, Cartone',          # Monday
+                1: 'Indifferenziata, Vetro',                         # Tuesday
+                2: 'Plastica e metalli, Cartone',                    # Wednesday
+                3: 'Organico, Vetro',                                # Thursday
+                4: 'Carta e cartone',                                # Friday
+                5: 'Organico, Plastica e metalli',                   # Sathurday
+                6: 'Nulla',                                          # Sunday
+            },
+
+            'typeNOTDOM': { #magro
+                0: 'Organico, Plastica e Metalli, Cartone',          # Monday
+                1: 'Indifferenziata, Vetro',                         # Tuesday
+                2: 'Plastica e metalli, Cartone',                    # Wednesday
+                3: 'Organico, Vetro',                                # Thursday
+                4: 'Carta e cartone',                                # Friday
+                5: 'Organico, Plastica e metalli',                   # Sathurday
+                6: 'Nulla',                                          # Sunday
+            }
+        },
+
+        'EXT': {
+            'typeDOM': { #di melfi
+                0: 'Dato non disponibile',                           # Monday
+                1: 'Dato non disponibile',                           # Tuesday
+                2: 'Dato non disponibile',                           # Wednesday
+                3: 'Dato non disponibile',                           # Thursday
+                4: 'Dato non disponibile',                           # Friday
+                5: 'Dato non disponibile',                           # Sathurday
+                6: 'Dato non disponibile',                           # Sunday
+            },
+
+            'typeNOTDOM': { #sileo
+                0: 'Indifferenziata, Vetro',                         # Monday
+                1: 'Plastica e metalli, Carta e cartone',            # Tuesday
+                2: 'Organico, Vetro',                                # Wednesday
+                3: 'Carta e cartone',                                # Thursday
+                4: 'Organico, Plastica e metalli',                   # Friday
+                5: 'Nulla',                                          # Sathurday
+                6: 'Carta e cartone',                                # Sunday
+            }
+        }
+    }
+    
+    if tm.tm_hour == 23 and tm.tm_min == 2: # verifica se sono le 20:00
+        # definisce il giorno
+        shitty_day = tm.tm_wday
+        # connessione al DB
+        db_connection = sqlite3.connect('differenziatabot.db')
+        db_cursor = db_connection.cursor()
+        db_cursor.execute('SELECT * FROM User WHERE status = "normal"')
+        db_rows = db_cursor.fetchall()
+    
+        # invia la notifica ad ogni utente "normale" nel database 
+        for row in db_rows:
+            bot.sendMessage(row[1], 'Oggi devi buttare {}'.format(type_trash[row[3]]['type' + row[4]][shitty_day]))
+    return
+    
 # Mantieni il bot in esecuzione
 while True:
-    sleep(60)
+    sleep(60)                   # Controlla ogni minuto che ore sono
+    trash_notify()
