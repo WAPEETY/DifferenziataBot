@@ -105,15 +105,21 @@ def button_press(msg):
             user.area_raccolta = "EXT"
 
         user.status = "getting_type"
-        bot.editMessageText((chatId, message_id), "Ottimo. Qual'è il tuo tipo di raccolta?")
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[[
-            InlineKeyboardButton(text="Utenze domestiche", callback_data="typeDOM#{0}".format(message_id))
-        ],
-        [
-            InlineKeyboardButton(text="Utenze NON domestiche", callback_data="typeNOTDOM#{0}".format(message_id))
-        ]])
-        bot.editMessageReplyMarkup((chatId, message_id), keyboard)
-
+        if user.area_raccolta != "EXT":
+            bot.editMessageText((chatId, message_id), "Ottimo. Qual'è il tuo tipo di raccolta?")
+            keyboard = InlineKeyboardMarkup(inline_keyboard=[[
+                InlineKeyboardButton(text="Utenze domestiche", callback_data="typeDOM#{0}".format(message_id))
+            ],
+            [
+                InlineKeyboardButton(text="Utenze NON domestiche", callback_data="typeNOTDOM#{0}".format(message_id))
+            ]])
+            bot.editMessageReplyMarkup((chatId, message_id), keyboard)
+        else:
+            bot.editMessageText((chatId, message_id), "Ottimo. Qual'è il tuo tipo di raccolta?")
+            keyboard = InlineKeyboardMarkup(inline_keyboard=[[
+                InlineKeyboardButton(text="Utenze NON domestiche", callback_data="typeNOTDOM#{0}".format(message_id))
+            ]])
+            bot.editMessageReplyMarkup((chatId, message_id), keyboard)
 
     elif user.status == "getting_type":
         if button == "typeDOM":
@@ -219,7 +225,7 @@ def trash_notify():
         }
     }
     
-    if tm.tm_hour == 23 and tm.tm_min == 2: # verifica se sono le 20:00
+    if tm.tm_hour == 20 and tm.tm_min == 0: # verifica se sono le 20:00
         # definisce il giorno
         shitty_day = tm.tm_wday
         # connessione al DB
