@@ -1,6 +1,7 @@
 import telepot
 import sqlite3
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
+from telepot.exception import TelegramError, BotWasBlockedError
 from time import sleep
 from time import localtime
 from pony.orm import db_session, select, exists
@@ -54,7 +55,7 @@ def reply(msg):
     if user.status == "normal":
         if text == "/start":
             bot.sendMessage(chatId, "Bentornato, <b>{0}</b>!\n"
-                                    "Cosa posso fare per te?".format(name), parse_mode="HTML")
+                                    "Da quanto tempo!".format(name), parse_mode="HTML")
 
         elif text == "/configura":
             bot.sendMessage(chatId, "Non c'è bisogno di configurarmi, hai già fatto tutto!")
@@ -225,7 +226,7 @@ def trash_notify():
         }
     }
     
-    if tm.tm_hour == 20 and tm.tm_min == 0: # verifica se sono le 20:00
+    if tm.tm_hour == 23 and tm.tm_min == 19: # verifica se sono le 20:00
         # definisce il giorno
         shitty_day = tm.tm_wday
         # connessione al DB
@@ -235,8 +236,11 @@ def trash_notify():
         db_rows = db_cursor.fetchall()
     
         # invia la notifica ad ogni utente "normale" nel database 
-        for row in db_rows:
-            bot.sendMessage(row[1], 'Oggi devi buttare {}'.format(type_trash[row[3]]['type' + row[4]][shitty_day]))
+        try:
+            for row in db_rows:
+                bot.sendMessage(row[1], 'Oggi devi buttare {}'.format(type_trash[row[3]]['type' + row[4]][shitty_day]))
+        except (TelegramError, BotWasBlockedError):
+            pass
     return
     
 # Mantieni il bot in esecuzione
