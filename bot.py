@@ -226,7 +226,7 @@ def trash_notify():
         }
     }
     
-    if tm.tm_hour == 23 and tm.tm_min == 19: # verifica se sono le 20:00
+    if tm.tm_hour == 20 and tm.tm_min == 00: # verifica se sono le 20:00
         # definisce il giorno
         shitty_day = tm.tm_wday
         # connessione al DB
