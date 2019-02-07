@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import telepot
 import sqlite3
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
@@ -240,7 +242,7 @@ def trash_notify():
             for row in db_rows:
                 bot.sendMessage(row[1], 'Oggi devi buttare {}'.format(type_trash[row[3]]['type' + row[4]][shitty_day]))
         except (TelegramError, BotWasBlockedError):
-            pass
+            db_cursor.execute('DELETE FROM User WHERE chatId = {}'.format(row[0]))
     return
     
 # Mantieni il bot in esecuzione
