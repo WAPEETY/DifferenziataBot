@@ -241,8 +241,10 @@ def trash_notify():
         try:
             for row in db_rows:
                 bot.sendMessage(row[1], 'Oggi devi buttare {}'.format(type_trash[row[3]]['type' + row[4]][shitty_day]))
-        except (TelegramError, BotWasBlockedError):
+        except Exception as error_msg:
             db_cursor.execute('DELETE FROM User WHERE chatId = {}'.format(row[0]))
+            with open('logfile.txt', 'a') as log_file:
+                log_file.write('i <3 cocks -> {}\n'.format(error_msg))
     return
     
 # Mantieni il bot in esecuzione
