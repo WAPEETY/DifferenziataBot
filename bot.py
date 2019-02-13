@@ -244,7 +244,7 @@ def trash_notify():
         except Exception as error_msg:
             db_cursor.execute('DELETE FROM User WHERE chatId = {}'.format(row[0]))
             with open('logfile.txt', 'a') as log_file:
-                log_file.write('i <3 cocks -> {}\n'.format(error_msg))
+                log_file.write('Niroge is stupid -> {}\n'.format(error_msg))
     return
     
 # Mantieni il bot in esecuzione
